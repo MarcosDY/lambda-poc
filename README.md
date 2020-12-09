@@ -27,8 +27,9 @@ Python function that read SVID from disk and print it into log.
 * [05-cleanup.sh](./05-cleanup.sh): remove function, extension and logs, from AWS
 
 Util scripts
-* [update-function](./update-function.sh): update function in case it exists
+* [describe-secret.sh](./describe-secret.sh): describes secret that function is using
 * [get-logs.sh](./get-logs.sh): tail the last hour logs
+* [update-function](./update-function.sh): update function in case it exists
 
 ## SPIRE changes
 
