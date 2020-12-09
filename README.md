@@ -25,7 +25,10 @@ Python function that read SVID from disk and print it into log.
 * [03-create-function](./03-create-function.sh): create POC function into configure AWS Region
 * [04-run.sh](./04-run.sh): invoke POC function
 * [05-cleanup.sh](./05-cleanup.sh): remove function, extension and logs, from AWS
+
+Util scripts
 * [update-function](./update-function.sh): update function in case it exists
+* [get-logs.sh](./get-logs.sh): tail the last hour logs
 
 ## SPIRE changes
 
