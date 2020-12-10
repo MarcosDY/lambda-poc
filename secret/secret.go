@@ -10,8 +10,8 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
-	"github.com/golang/protobuf/proto"
 	"github.com/spiffe/go-spiffe/v2/proto/spiffe/workload"
+	"google.golang.org/protobuf/proto"
 )
 
 var region = os.Getenv("AWS_REGION")
