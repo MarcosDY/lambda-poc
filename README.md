@@ -9,7 +9,9 @@ This secrets has a marshaled `workload.X509SVIDResponse` proto added and updated
 ### Extension:
 
 Simple extension that reads a Secret from Secret manager
+
 *NOTE: secret MUST have a workload.X509SVIDResponse as binary.*
+
 Secret name or ARN must be provided using envvar "SECRET_NAME" on function. 
 Once secret is parsed svids is persisted on '/tmp' folder.
 
