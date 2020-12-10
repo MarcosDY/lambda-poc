@@ -2,7 +2,7 @@
 
 This POC is aimed to demonstrate that is possible to consume an X509 SVID persisted in a Secret inside AWS.
 
-This secrets has a marshaled workload.X509SVIDResponse proto that is pushed from SPIRE Agent, and keep it updated.
+This secrets has a marshaled `workload.X509SVIDResponse` proto added and updated for SPIRE Agent.
 
 ## Components:  
 
@@ -50,5 +50,5 @@ Selector      : store:aws_secretsmanager
 FederatesWith : federated.td2
 ```
 
-* `push:aws_secretsmanager`: `store` is the key for all storable SVIDs, `aws_secretsmanager` is the plugin name used to `store` SVID
+* `store:aws_secretsmanager`: `store` is the key for all storable SVIDs, `aws_secretsmanager` is the plugin name used to `store` SVID
 * `aws:name:SVID_Example`: is the revelant information to update secret, in this case we say that the secrete name is `SVID_Example`, it is possibe to use `aws:name` or `aws:arn` as secret ID.
