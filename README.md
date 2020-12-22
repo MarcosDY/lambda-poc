@@ -1,56 +1,57 @@
 # lambda-poc
 
-This POC is aimed to demonstrate that is possible to consume an X509 SVID persisted in a Secret inside AWS.
+This is a proof of concept to demonstrate how serverless computing can be supported in SPIRE through the introduction of an `SVIDStore` agent plugin.
 
-This secrets has a marshaled `workload.X509SVIDResponse` proto added and updated for SPIRE Agent.
+The model leverages the use of secret management services offered by cloud providers to store and retrieve the SVIDs and keys in a secure way, inside the cloud infrastructure.
 
-## Components:  
+The serverless functions are registered in SPIRE in the same way that regular workloads are registered through registration entries. The `svidstore` key is used to distinguish the "storable" entries, and `SVIDStore` plugins receives updates of those entries only, which indicates that the issued SVID and key must be securely stored in a location accesible by the serverless function, like AWS Secrets Manager. This way, selectors provide a flexible way to describe the attributes needed to store the corresponding issued SVID and key, like the type of store, name to provide to the secret, and any specific attribute needed by the specific service used.
 
-### Extension:
+## Components
 
-Simple extension that reads a Secret from Secret manager
+### AWS Lambda Extension
 
-*NOTE: secret MUST have a workload.X509SVIDResponse as binary.*
+Simple extension that reads a secret from AWS Secrets Manager.
 
-Secret name or ARN must be provided using envvar "SECRET_NAME" on function. 
-Once secret is parsed svids is persisted on '/tmp' folder.
+*NOTE: it is expected that the secret is a binary `workload.X509SVIDResponse` message.*
 
-### Function:
+The secret name or ARN must be provided using the environment variable "SECRET_NAME" in the function. 
+The secret is parsed and the X509-SVID, bundle and key are persisted in the `/tmp` folder.
 
-Python function that read SVID from disk and print it into log.
+### Function
 
-## Scripts:
+The function itself is a Python function that reads the stored SVID from disk and prints it so it can be read from the log.
 
-* [00-var.sh](./00-vars.sh): Contains all variables used to run POC, it is important to update 'FUNCTION_ROLE' with a valid execution role, it MUST have access to Secret
-* [01-build.sh](./01-build.sh): Build extension and function
-* [02-publish-layer.sh](./02-publish-layer.sh): publish a new version of SPIRE Extension
-* [03-create-function](./03-create-function.sh): create POC function into configure AWS Region
-* [04-run.sh](./04-run.sh): invoke POC function
-* [05-cleanup.sh](./05-cleanup.sh): remove function, extension and logs, from AWS
+## Scripts
 
+* [00-var.sh](./00-vars.sh): Contains all the variables used to run this POC. 'FUNCTION_ROLE' must be updated with a valid execution role, ensuring that is has access to AWS Secrets Manager.
+* [01-build.sh](./01-build.sh): Build extension and function.
+* [02-publish-layer.sh](./02-publish-layer.sh): Publish a new version of the extension.
+* [03-create-function](./03-create-function.sh): Create the AWS Lambda function in the configured AWS region.
+* [04-run.sh](./04-run.sh): Invoke the AWS Lambda function.
+* [05-cleanup.sh](./05-cleanup.sh): Cleanup the AWS resources associated with this project (function, layers, logs).
 Util scripts
-* [describe-secret.sh](./describe-secret.sh): describes secret that function is using
-* [get-logs.sh](./get-logs.sh): tail the last hour logs
-* [update-function](./update-function.sh): update function in case it exists
+* [describe-secret.sh](./describe-secret.sh): Describe the stored secret.
+* [get-logs.sh](./get-logs.sh): Tail the last hour logs.
+* [update-function](./update-function.sh): Update the already created AWS Lambda function, if exists.
 
 ## SPIRE changes
 
-SPIRE Agent was updated to be able to update secrets on AWS, it is using a new kind of plugins 'SVIDStore' that is notified every time that an 'storable' SVID is updated, and update Secret Binary, with an updated plugin.
+The SPIRE Agent cache manager was updated to be able to identify "storable" entries and notify the corresponding plugin when the entries are updated. A new `SVIDStore` agent plugin is introduced for this.
 
 ![SPIRE Diagram](./images/agent-pusher-pipe.png)
 
-### Entry example:
+### Entry example
 
 ```
-Entry ID      : e1d52419-a2aa-4ca1-abd6-e714a46ae77d
-SPIFFE ID     : spiffe://example.org/aws/workload1
-Parent ID     : spiffe://example.org/agent
-Revision      : 6
-TTL           : default 
-Selector      : aws:name:SVID_Example
-Selector      : store:aws_secretsmanager
-FederatesWith : federated.td2
+Entry ID         : 03be8f19-e6d0-4fc1-9457-fde3c01b6430
+SPIFFE ID        : spiffe://example.org/dbuser
+Parent ID        : spiffe://example.org/agent
+Revision         : 0
+TTL              : default
+Selector         : svidstore:secretname:svid-dbuser
+Selector         : svidstore:type:aws_secretsmanager
 ```
 
-* `store:aws_secretsmanager`: `store` is the key for all storable SVIDs, `aws_secretsmanager` is the plugin name used to `store` SVID
-* `aws:name:SVID_Example`: is the revelant information to update secret, in this case we say that the secrete name is `SVID_Example`, it is possibe to use `aws:name` or `aws:arn` as secret ID.
+* `svidstore` is the key used to indicate that the issued SVID and key must be stored in a secure store.
+* `svidstore:type:aws_secretsmanager` indicates that the entry must be stored in a store of type `aws_secretsmanager`.
+* `svidstore:secretname:svid-dbuser` is an example of how a platform-specific attribute can be specified. In this case, since AWS Lambda needs a secret name or ARN, this selector specifies that the `svid-dbuser` name must be used when storing the secret.

@@ -42,7 +42,7 @@ func (s *secret) GetSecret(ctx context.Context, secretID string) (*workload.X509
 		log.Printf("[EXTENSION] GetSecretValue takes: %s", strconv.FormatInt(elapse.Milliseconds(), 10))
 	}()
 
-	// Get AWSCURRENT secrert
+	// Get the specified secret ID (AWSCURRENT version)
 	resp, err := s.client.GetSecretValue(&secretsmanager.GetSecretValueInput{
 		SecretId: &secretID,
 	})
