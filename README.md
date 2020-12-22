@@ -19,7 +19,7 @@ The secret is parsed and the X509-SVID, bundle and key are persisted in the `/tm
 
 ### Function
 
-The function itself is a Python function that reads the stored SVID from disk and prints it so it can be read from the log.
+The function itself is a Python function that reads the stored SVID from disk prints it so it can be read from the log and returns it in a JSON response.
 
 ## Scripts
 
