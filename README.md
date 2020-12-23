@@ -4,7 +4,7 @@ This is a proof of concept to demonstrate how serverless computing can be suppor
 
 The model leverages the use of secret management services offered by cloud providers to store and retrieve the SVIDs and keys in a secure way, inside the cloud infrastructure.
 
-The serverless functions are registered in SPIRE in the same way that regular workloads are registered through registration entries. The `svidstore` key is used to distinguish the "storable" entries, and `SVIDStore` plugins receives updates of those entries only, which indicates that the issued SVID and key must be securely stored in a location accessible by the serverless function, like AWS Secrets Manager. This way, selectors provide a flexible way to describe the attributes needed to store the corresponding issued SVID and key, like the type of store, name to provide to the secret, and any specific attribute needed by the specific service used.
+The serverless functions are registered in SPIRE in the same way that regular workloads are registered through registration entries. The `svidstore` key is used to distinguish the "storable" entries, and `SVIDStore` plugins receive updates of those entries only, which indicates that the issued SVID and key must be securely stored in a location accessible by the serverless function, like AWS Secrets Manager. This way, selectors provide a flexible way to describe the attributes needed to store the corresponding issued SVID and key, like the type of store, name to provide to the secret, and any specific attribute needed by the specific service used.
 
 ## Components
 
