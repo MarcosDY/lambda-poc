@@ -1,4 +1,4 @@
-# lambda-poc
+# AWS Lambda Example
 
 This is a proof of concept to demonstrate how serverless computing can be supported in SPIRE through the introduction of an `SVIDStore` agent plugin.
 
