@@ -5,6 +5,7 @@
 aws lambda invoke \
 	--function-name "${FUNCTION_NAME}" \
 	--region "${AWS_REGION}" \
-	--invocation-type "Event" \
-	.lambda-response	
+	--invocation-type "RequestResponse" \
+	.lambda-response
 
+cat .lambda-response | jq .svid -r > svid.pem

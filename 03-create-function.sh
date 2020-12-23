@@ -13,4 +13,4 @@ aws lambda create-function \
 	--handler "main.pop_handler" \
 	--zip-file "fileb://${OUTPUT_DIR}/function.zip" \
 	--environment "Variables={SECRET_NAME=${SECRET_NAME}}"
-
+	

@@ -15,4 +15,3 @@ cd ../../
 echo "Building function"
 cp "${FUNCTION_DIR}/main.py" "${FUNCTION_BUILD_DIR}"
 cd "${FUNCTION_BUILD_DIR}" && zip -j -r ../../${OUTPUT_DIR}/function.zip main.py
-
