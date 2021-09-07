@@ -2,40 +2,53 @@ package secret
 
 import (
 	"context"
+	"encoding/json"
 	"log"
 	"os"
 	"strconv"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/secretsmanager"
-	"github.com/spiffe/go-spiffe/v2/proto/spiffe/workload"
-	"google.golang.org/protobuf/proto"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/secretsmanager"
 )
 
 var region = os.Getenv("AWS_REGION")
 
+type Svid struct {
+	// The SPIFFE ID of that identify this SVID
+	SpiffeID string `json:"spiffeId,omitempty"`
+	// PEM encoded certificate chain. MAY invlude intermediates,
+	// the leaf certificate (or SVID itself) MUST come first
+	X509Svid string `json:"x509Svid,omitempty"`
+	// PEM encoded PKCS#8 private key.
+	X509SvidKey string `json:"x509SvidKey,omitempty"`
+	// PEM encoded X.509 bundle for the trust domain
+	Bundle string `json:"bundle,omitempty"`
+	// CA certificate bundles belonging to foreign trust domains that the workload should trust,
+	// keyed by trust domain. Bundles are in encoded in PEM format.
+	FederatedBundles map[string]string `json:"federated_bundles,omitempty"`
+}
+
 type SecretManager interface {
-	GetSecret(ctx context.Context, secretID string) (*workload.X509SVIDResponse, error)
+	GetSecret(ctx context.Context, secretID string) (*Svid, error)
 }
 
 type secret struct {
 	// TODO: add an interface
-	client *secretsmanager.SecretsManager
+	client *secretsmanager.Client
 }
 
-func New() SecretManager {
-	sess := session.Must(session.NewSession(&aws.Config{
-		Region: &region,
-	}))
-
-	return &secret{
-		client: secretsmanager.New(sess),
+func New(ctx context.Context) (SecretManager, error) {
+	cfg, err := config.LoadDefaultConfig(ctx, config.WithRegion(region))
+	if err != nil {
+		return nil, err
 	}
+	return &secret{
+		client: secretsmanager.NewFromConfig(cfg),
+	}, nil
 }
 
-func (s *secret) GetSecret(ctx context.Context, secretID string) (*workload.X509SVIDResponse, error) {
+func (s *secret) GetSecret(ctx context.Context, secretID string) (*Svid, error) {
 	startAt := time.Now()
 	defer func() {
 		elapse := time.Since(startAt)
@@ -43,18 +56,18 @@ func (s *secret) GetSecret(ctx context.Context, secretID string) (*workload.X509
 	}()
 
 	// Get the specified secret ID (AWSCURRENT version)
-	resp, err := s.client.GetSecretValue(&secretsmanager.GetSecretValueInput{
+	resp, err := s.client.GetSecretValue(ctx, &secretsmanager.GetSecretValueInput{
 		SecretId: &secretID,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	x509SVID := new(workload.X509SVIDResponse)
-	if err := proto.Unmarshal(resp.SecretBinary, x509SVID); err != nil {
+	secretBinary := new(Svid)
+	if err := json.Unmarshal(resp.SecretBinary, secretBinary); err != nil {
 		log.Printf("[EXTENSION] failed to unmarshal: %v", err)
 		return nil, err
 	}
 
-	return x509SVID, nil
+	return secretBinary, nil
 }

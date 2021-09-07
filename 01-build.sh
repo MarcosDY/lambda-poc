@@ -2,9 +2,12 @@
 
 . 00-vars.sh
 
-mkdir -p "${EXTENSION_BUILD_DIR}"
+mkdir -p "${EXTENSION_BUILD_DIR}/extensions"
 mkdir -p "${FUNCTION_BUILD_DIR}"
 mkdir -p "${OUTPUT_DIR}"
+
+# Clean
+rm ${EXTENSION_BUILD_DIR}/*
 
 echo "Building extension"
 GOOS=linux go build -o "${EXTENSION_BUILD_DIR}/extensions/${EXTENSION}" .

@@ -8,4 +8,5 @@ aws lambda invoke \
 	--invocation-type "RequestResponse" \
 	.lambda-response
 
-cat .lambda-response | jq .svid -r > svid.pem
+cat .lambda-response | jq .cert -r > cert.pem
+cat .lambda-response | jq .bundle -r > bundle.pem

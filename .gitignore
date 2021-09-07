@@ -3,4 +3,6 @@ bin
 /.layer.arn.txt
 /.response.json
 /.lambda-response
+/bundle.pem
+/cert.pem
 

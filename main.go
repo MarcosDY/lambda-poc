@@ -27,7 +27,10 @@ var (
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 
-	sm := secret.New()
+	sm, err := secret.New(ctx)
+	if err != nil {
+		log.Fatalf("Failed to create secrets client: %v", err)
+	}
 
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGTERM, syscall.SIGINT)
@@ -55,13 +58,13 @@ func initialiseExtension(ctx context.Context, sm secret.SecretManager) error {
 		log.Printf("initialize takes: %s", strconv.FormatInt(elapse.Milliseconds(), 10))
 	}()
 
-	// Get a 'workload.X509SVIDResponse' from Secret Manager
-	x509SVID, err := sm.GetSecret(ctx, secretName)
+	// Get a Secret binary from Secret Manager
+	secretBinary, err := sm.GetSecret(ctx, secretName)
 	if err != nil {
 		return err
 	}
 
-	if err := util.SaveSvids(x509SVID, outputPath); err != nil {
+	if err := util.SaveSvid(secretBinary, outputPath); err != nil {
 		return err
 	}
 
