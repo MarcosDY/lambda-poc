@@ -3,10 +3,16 @@
 . 00-vars.sh
 
 aws lambda invoke \
-	--function-name "${FUNCTION_NAME}" \
+	--function-name "${FUNCTION_DB}" \
 	--region "${AWS_REGION}" \
-	--invocation-type "RequestResponse" \
-	.lambda-response
+	.db-lambda-response > /dev/null
 
-cat .lambda-response | jq .cert -r > cert.pem
-cat .lambda-response | jq .bundle -r > bundle.pem
+cat .db-lambda-response | jq .cert -r | openssl x509 -text -noout | grep "URI:"
+
+aws lambda invoke \
+	--function-name "${FUNCTION_WEB}" \
+	--region "${AWS_REGION}" \
+	.web-lambda-response > /dev/null
+
+cat .web-lambda-response | jq .cert -r | openssl x509 -text -noout | grep "URI:"
+

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ARN=$(cat .layer.arn.txt)
+SECRET_NAME=$1
 
 . 00-vars.sh
 

@@ -7,9 +7,14 @@ get_versions () {
   echo $(aws lambda list-layer-versions --layer-name "$EXTENSION" --region "$AWS_REGION" --output text --query LayerVersions[].Version | tr '[:blank:]' '\n')
 }
 
-echo "Deleting Function"
+echo "Deleting db-client Function"
 aws lambda delete-function \
-	--function-name "${FUNCTION_NAME}" \
+	--function-name "${FUNCTION_DB}" \
+	--region "${AWS_REGION}" > /dev/null
+
+echo "Deleting web-client Function"
+aws lambda delete-function \
+	--function-name "${FUNCTION_WEB}" \
 	--region "${AWS_REGION}" > /dev/null
 
 echo "Deleting Layers"
@@ -22,9 +27,9 @@ done
 
 echo "Deleting logs"
 while true; do
-    read -p "Delete function log group (/aws/lambda/$FUNCTION_NAME)? (y/n)" response
+    read -p "Delete function log group (/aws/lambda/*? (y/n)" response
     case $response in
-	[Yy]* ) aws logs delete-log-group --log-group-name /aws/lambda/$FUNCTION_NAME; break;;
+	[Yy]* ) aws logs delete-log-group --log-group-name /aws/lambda/$FUNCTION_DB > /dev/null; aws logs delete-log-group --log-group-name /aws/lambda/$FUNCTION_WEB > /dev/null; break;;
 	[Nn]* ) break;;
 	* ) echo "Response must start with y or n.";;
     esac

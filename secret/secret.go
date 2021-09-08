@@ -26,7 +26,7 @@ type Svid struct {
 	Bundle string `json:"bundle,omitempty"`
 	// CA certificate bundles belonging to foreign trust domains that the workload should trust,
 	// keyed by trust domain. Bundles are in encoded in PEM format.
-	FederatedBundles map[string]string `json:"federated_bundles,omitempty"`
+	FederatedBundles map[string]string `json:"federatedBundles,omitempty"`
 }
 
 type SecretManager interface {
