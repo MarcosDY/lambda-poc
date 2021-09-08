@@ -3,6 +3,8 @@ bin
 /.layer.arn.txt
 /.response.json
 /.lambda-response
+/.web-lambda-response
+/.db-lambda-response
 /bundle.pem
 /cert.pem
 
