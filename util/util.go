@@ -13,31 +13,31 @@ import (
 
 // SaveSvid persist X509 SVID into provided folder.
 func SaveSvid(svid *secret.Svid, outputPath string) error {
-	log.Println("Getting spiffeID")
+	log.Printf("SPIFFE ID: %v", svid.SpiffeID)
 	block, _ := pem.Decode([]byte(svid.X509Svid))
 	cert, err := x509.ParseCertificate(block.Bytes)
 	if err != nil {
 		log.Printf("Parse blocks: %v\n", err)
 		return err
 	}
-	log.Printf("SPIFFE ID: %v", cert.URIs)
+	log.Printf("Not after %v", cert.NotAfter)
 
 	log.Println("Writing /tmp/svid.pem.")
 	log.Println(svid.X509Svid)
 
-	if err := writeCerts("/tmp/svid.pem", svid.X509Svid); err != nil {
+	if err := writeCerts(path.Join(outputPath, "svid.pem"), svid.X509Svid); err != nil {
 		return err
 	}
 
 	log.Println("Writing /tmp/svid.key")
-	log.Println(svid.Bundle)
-	if err := writeKey("/tmp/svid.key", svid.X509SvidKey); err != nil {
+	log.Println(svid.X509SvidKey)
+	if err := writeKey(path.Join(outputPath, "svid.key"), svid.X509SvidKey); err != nil {
 		return err
 	}
 
 	log.Println("Writing /tmp/bundle.pem")
-	log.Println(svid.X509SvidKey)
-	if err := writeCerts("/tmp/bundle.pem", svid.Bundle); err != nil {
+	log.Println(svid.Bundle)
+	if err := writeCerts(path.Join(outputPath, "bundle.pem"), svid.Bundle); err != nil {
 		return err
 	}
 
@@ -48,9 +48,9 @@ func SaveSvid(svid *secret.Svid, outputPath string) error {
 	}
 
 	for j, trustDomain := range federatedDomains {
-		bundlePath := path.Join(outputPath, fmt.Sprintf("/tmp/federated_bundle.%d.pem", j))
+		bundlePath := path.Join(outputPath, fmt.Sprintf("federated_bundle.%d.pem", j))
 		log.Printf("Writing federated bundle #%d for trust domain %s to file %s.\n", j, trustDomain, bundlePath)
-		log.Printf("%+v \n", svid.FederatedBundles[trustDomain])
+		log.Println(svid.FederatedBundles[trustDomain])
 		if err := writeCerts(bundlePath, svid.FederatedBundles[trustDomain]); err != nil {
 			return err
 		}

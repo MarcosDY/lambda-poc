@@ -21,7 +21,7 @@ FUNCTION_WEB=web-client
 # Execution role used on function, it must have access to secret
 FUNCTION_ROLE=arn:aws:iam::529024819027:role/lambda-role
 # Secret name, it must be updated for SPIRE to keep an udpated X509 SVID
-SECRET_DB=db-svid
+SECRET_DB=db-secret
 # Secret name, it must be updated for SPIRE to keep an udpated X509 SVID
-SECRET_WEB=web-svid
+SECRET_WEB=web-secret
 
